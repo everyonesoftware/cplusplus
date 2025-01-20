@@ -1,0 +1,20 @@
+name: BuildAndTest
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  buildAndTest:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build
+        run: call build.cmd
+
+      - name: Test
+        run: call test.cmd
