@@ -8,7 +8,7 @@ namespace e1
     class HeapAllocator : public Allocator
     {
     public:
-        explicit HeapAllocator() = default;
+        HeapAllocator() = default;
         virtual ~HeapAllocator() = default;
 
         /**

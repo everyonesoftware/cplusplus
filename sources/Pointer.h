@@ -144,21 +144,23 @@ namespace e1
             return this->value != nullptr;
         }
 
-        // /**
-        //  * Get the value that this Pointer points to.
-        //  */
-        // T& getValue() const requires (!std::is_void_v<T>())
-        // {
-        //     return *this->value;
-        // }
+        /**
+         * Get the value that this Pointer points to.
+         */
+        template <typename U = T, typename std::enable_if<!std::is_void<U>::value, int>::type = 0>
+        U& getValue() const
+        {
+            return *this->value;
+        }
 
-        // /**
-        //  * Get the value that this Pointer points to.
-        //  */
-        // T& operator*() const requires (!std::is_void_v<T>())
-        // {
-        //     return *this->value;
-        // }
+        /**
+         * Get the value that this Pointer points to.
+         */
+        template <typename U = T, typename std::enable_if<!std::is_void<U>::value, int>::type = 0>
+        U& operator*() const
+        {
+            return *this->value;
+        }
 
         /**
          * Get a pointer to the value that this Pointer points to.
