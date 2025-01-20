@@ -11,6 +11,9 @@ namespace e1
         HeapAllocator allocator;
         process.setAllocator(&allocator);
 
+        StdCoutCharacterWriteStream outputWriteStream;
+        process.setOutputWriteStream(&outputWriteStream);
+
         action(&process);
 
         return process.getExitCode();
@@ -21,7 +24,7 @@ namespace e1
           allocator(),
           exitCode(),
           fileSystem(),
-          stdout()
+          outputWriteStream()
     {
     }
 
@@ -31,7 +34,7 @@ namespace e1
         return this->getThisPointer();
     }
 
-    const P<Allocator>& CurrentProcess::getAllocator()
+    const P<Allocator>& CurrentProcess::getAllocator() const
     {
         return this->allocator;
     }
@@ -52,9 +55,15 @@ namespace e1
         return this->fileSystem;
     }
 
-    CharacterWriteStream& CurrentProcess::getOutputWriteStream()
+    const P<CharacterWriteStream>& CurrentProcess::getOutputWriteStream() const
     {
-        return this->stdout;
+        return this->outputWriteStream;
+    }
+
+    const P<CurrentProcess> CurrentProcess::setOutputWriteStream(const P<CharacterWriteStream>& outputWriteStream)
+    {
+        this->outputWriteStream = outputWriteStream;
+        return this->getThisPointer();
     }
 
     const P<CurrentProcess> CurrentProcess::getThisPointer() const
