@@ -31,7 +31,7 @@ namespace e1
          * Get the Allocator that this CurrentProcess uses to allocate memory and create new
          * objects.
          */
-        const P<Allocator>& getAllocator();
+        const P<Allocator>& getAllocator() const;
         /**
          * Set the Allocator that this CurrentProcess uses to allocate memory and create new
          * objects. Returns a Pointer to this object for method chaining.
@@ -57,23 +57,28 @@ namespace e1
         FileSystem& getFileSystem();
 
         /**
-         * Get a reference to the stdout CharacterWriteStream.
+         * Get this CurrentProcess's CharacterWriteStream that writes to standard out.
          */
-        CharacterWriteStream& getOutputWriteStream();
+        const P<CharacterWriteStream>& getOutputWriteStream() const;
+
+        /**
+         * Set this CurrentProcess's CharacterWriteStream that writes to standard out.
+         * @param outputWriteStream The CharacterWriteStream that writes to standard out.
+         */
+        const P<CurrentProcess> setOutputWriteStream(const P<CharacterWriteStream>& outputWriteStream);
 
     private:
         /**
          * Create a new CurrentProcess object.
          */
-        explicit CurrentProcess();
+        CurrentProcess();
 
         const P<CurrentProcess> getThisPointer() const;
 
         P<Allocator> allocator;
-
         int exitCode;
         FileSystem fileSystem;
-        StdCoutCharacterWriteStream stdout;
+        P<CharacterWriteStream> outputWriteStream;
     };
 }
 
