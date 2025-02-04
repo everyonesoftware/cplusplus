@@ -5,18 +5,22 @@
 namespace e1
 {
     TestRunner::TestRunner(const P<CharacterWriteStream>& writeStream)
-        : writeStream(writeStream)
+        : writeStream(writeStream),
+          currentTestGroup(),
+          passedTestCount(),
+          failedTestCount(),
+          errorCount()
     {
     }
 
-    void TestRunner::testFile(const char* testFileName, const Action<>& testFileAction)
-    {
-        this->testGroup(testFileName, testFileAction);
-    }
-
-    void TestRunner::testType(const char* fileName, const Action<>& testFileAction)
+    void TestRunner::testFile(const char* fileName, const Action<>& testFileAction)
     {
         this->testGroup(fileName, testFileAction);
+    }
+
+    void TestRunner::testType(const char* typeName, const Action<>& testFileAction)
+    {
+        this->testGroup(typeName, testFileAction);
     }
 
     void TestRunner::testMethod(const char* methodName, const Action<>& testMethodAction)
@@ -35,8 +39,14 @@ namespace e1
         }
         catch(const std::exception& e)
         {
+            this->incrementErrorCount();
             this->writeStream->writeString("Unexpected exception: ");
             this->writeStream->writeLine(e.what());
+        }
+        catch(...)
+        {
+            this->incrementErrorCount();
+            this->writeStream->writeString("Unexpected non-exception thrown.");
         }
         
         this->setCurrentTestGroup(testGroup.getParent());
@@ -50,13 +60,20 @@ namespace e1
         try
         {
             testAction(test);
+            this->incrementPassedTestCount();
             this->writeStream->writeLine("PASS");
         }
         catch(const TestAssertionFailure& e)
         {
+            this->incrementFailedTestCount();
             this->writeStream->writeLine("FAIL");
             this->writeStream->writeString("  ");
             this->writeStream->writeLine(e.getMessage());
+        }
+        catch(...)
+        {
+            this->incrementErrorCount();
+            this->writeStream->writeString("Unexpected non-exception thrown.");
         }
     }
 
@@ -68,6 +85,56 @@ namespace e1
     void TestRunner::setCurrentTestGroup(const P<TestGroup>& currentTestGroup)
     {
         this->currentTestGroup.set(currentTestGroup);
+    }
+
+    int TestRunner::getPassedTestCount() const
+    {
+        return this->passedTestCount;
+    }
+
+    void TestRunner::incrementPassedTestCount()
+    {
+        this->passedTestCount++;
+    }
+
+    int TestRunner::getFailedTestCount() const
+    {
+        return this->failedTestCount;
+    }
+
+    void TestRunner::incrementFailedTestCount()
+    {
+        this->failedTestCount++;
+    }
+
+    int TestRunner::getErrorCount() const
+    {
+        return this->errorCount;
+    }
+
+    void TestRunner::incrementErrorCount()
+    {
+        this->errorCount++;
+    }
+
+    void TestRunner::writeSummary()
+    {
+        this->writeStream->writeLine();
+
+        this->writeSummaryCount("Passed", this->getPassedTestCount());
+        this->writeSummaryCount("Failed", this->getFailedTestCount());
+        this->writeSummaryCount("Errors", this->getErrorCount());
+    }
+
+    void TestRunner::writeSummaryCount(const char* countName, int count)
+    {
+        if (count > 0)
+        {
+            this->writeStream->writeString(countName);
+            this->writeStream->writeString(": ");
+            this->writeStream->writeInt(count);
+            this->writeStream->writeLine();
+        }
     }
 
     void TestRunner::writeTestGroupFullName(const P<TestGroup>& testGroup)

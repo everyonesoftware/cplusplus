@@ -188,6 +188,44 @@ namespace e1
             return Pointer<U>(uValue, this->refCount, this->releaseAction);
         }
 
+        /**
+         * Get whether this Pointer points at the same address as the provided raw pointer.
+         * @param right The raw pointer to compare against this Pointer.
+         */
+        bool equals(const void* right) const
+        {
+            return this->value == right;
+        }
+
+        /**
+         * Get whether this Pointer points at the same address as the provided raw pointer.
+         * @param right The raw pointer to compare against this Pointer.
+         */
+        bool operator==(const void* right) const
+        {
+            return this->equals(right);
+        }
+
+        /**
+         * Get whether this Pointer points at the same address as the provided Pointer.
+         * @param right The Pointer to compare against this Pointer.
+         */
+        template <typename U>
+        bool equals(const Pointer<U>& right) const
+        {
+            return this->value == right.getValuePointer();
+        }
+
+        /**
+         * Get whether this Pointer points at the same address as the provided Pointer.
+         * @param right The Pointer to compare against this Pointer.
+         */
+        template <typename U>
+        bool operator==(const Pointer<U>& right) const
+        {
+            return this->equals(right);
+        }
+
     private:
         /**
          * Increment this Pointer's refCount value.

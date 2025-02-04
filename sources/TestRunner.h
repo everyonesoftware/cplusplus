@@ -22,6 +22,27 @@ namespace e1
         TestRunner(const P<CharacterWriteStream>& writeStream);
 
         /**
+         * Get the current TestGroup for this TestRunner. This may be null if there isn't a
+         * TestGroup currently running.
+         */
+        const P<TestGroup>& getCurrentTestGroup() const;
+
+        /**
+         * Get the number of tests that have passed.
+         */
+        int getPassedTestCount() const;
+
+        /**
+         * Get the number of tests that have failed.
+         */
+        int getFailedTestCount() const;
+
+        /**
+         * Get the number of unhandled errors that have occurred.
+         */
+        int getErrorCount() const;
+
+        /**
          * Create a test group that contains tests pertaining to a specific file.
          * @param fileName The name of the file to test.
          * @param testFileAction The Action that defines the test group.
@@ -56,12 +77,12 @@ namespace e1
          */
         void test(const char* testName, const Action<Test>& testAction);
 
-    private:
         /**
-         * Get the current TestGroup for this TestRunner. This may be null if there isn't a
-         * TestGroup currently running.
+         * Write the summary of the tests that were run.
          */
-        const P<TestGroup>& getCurrentTestGroup() const;
+        void writeSummary();
+
+    private:
         /**
          * Set the curently running TestGroup for this TestRunner.
          * @param currentTestGroup The currently running TestGroup. This may be null to indicate
@@ -69,11 +90,37 @@ namespace e1
          */
         void setCurrentTestGroup(const P<TestGroup>& currentTestGroup);
 
+        /**
+         * Increment the passed test count.
+         */
+        void incrementPassedTestCount();
+
+        /**
+         * Increment the failed test count.
+         */
+        void incrementFailedTestCount();
+
+        /**
+         * Increment the error count.
+         */
+        void incrementErrorCount();
+
+        /**
+         * Write a count as a part of the summary.
+         * @param countName The name of the count to write.
+         * @param count The count to write.
+         */
+        void writeSummaryCount(const char* countName, int count);
+
         void writeTestGroupFullName(const P<TestGroup>& testGroup);
         void writeTestFullName(const char* testName);
 
         P<CharacterWriteStream> writeStream;
         P<TestGroup> currentTestGroup;
+
+        int passedTestCount;
+        int failedTestCount;
+        int errorCount;
     };
 }
 
