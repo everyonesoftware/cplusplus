@@ -43,6 +43,34 @@ namespace e1
                 assertEqualTest("with 1 and true", 1, true);
                 assertEqualTest("with true and 1", true, 1);
             });
+
+            runner->testMethod("assertThrows()", [&]
+            {
+                runner->test("with nothing thrown", [](Test test)
+                {
+                    test.assertThrows([]
+                    {
+                        Test fakeTest;
+                        fakeTest.assertThrows([]{});
+                    });
+                });
+
+                runner->test("with a TestAssertionFailure thrown", [](Test test)
+                {
+                    test.assertThrows([]
+                    {
+                        throw TestAssertionFailure("fake error message");
+                    });
+                });
+
+                runner->test("with an int thrown", [](Test test)
+                {
+                    test.assertThrows([]
+                    {
+                        throw 50;
+                    });
+                });
+            });
         });
     }
 }

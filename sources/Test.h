@@ -26,7 +26,7 @@ namespace e1
         template <typename T, typename U>
         void assertEqual(T left, U right)
         {
-            if (left != right)
+            if (!(left == right))
             {
                 this->fail("Expected the values to be equal, but they weren't.");
             }
