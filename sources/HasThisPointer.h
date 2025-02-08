@@ -1,5 +1,4 @@
-#ifndef E1_HasThisPointer_H
-#define E1_HasThisPointer_H
+#pragma once
 
 #include "Pointer.h"
 
@@ -39,5 +38,3 @@ namespace e1
         Pointer<void> thisPointer;
     };
 }
-
-#endif

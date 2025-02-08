@@ -1,5 +1,4 @@
-#ifndef E1_TESTRUNNER_H
-#define E1_TESTRUNNER_H
+#pragma once
 
 #include "Action.h"
 #include "CharacterWriteStream.h"
@@ -123,5 +122,3 @@ namespace e1
         int errorCount;
     };
 }
-
-#endif

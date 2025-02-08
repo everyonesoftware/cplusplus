@@ -1,5 +1,4 @@
-#ifndef E1_NOTCOPYABLE_H
-#define E1_NOTCOPYABLE_H
+#pragma once
 
 namespace e1
 {
@@ -17,5 +16,3 @@ namespace e1
         NotCopyable& operator=(const NotCopyable&) = delete;
     };
 }
-
-#endif

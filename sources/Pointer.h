@@ -1,7 +1,6 @@
-#ifndef E1_POINTER_H
-#define E1_POINTER_H
+#pragma once
 
-#include "RefCountedValue.h"
+#include "ReferenceCount.h"
 #include "Action.h"
 
 #include <type_traits>
@@ -15,20 +14,31 @@ namespace e1
     class Pointer
     {
     public:
+        /**
+         * Create a new empty Pointer object that points to null.
+         */
         Pointer()
-            : Pointer(nullptr, nullptr, []{})
+            : Pointer(nullptr, nullptr)
         {
         }
 
+        /**
+         * Create a new Pointer object that points to the provided value, but won't perform any type
+         * of cleanup when the Pointer is destroyed.
+         */
         Pointer(T* value)
-            : Pointer(value, nullptr, []{})
+            : Pointer(value, nullptr)
         {
         }
 
-        Pointer(T* value, int* refCount, const Action<>& releaseAction)
-            : value(value), refCount(refCount), releaseAction(releaseAction)
+        /**
+         * Create a new Pointer object that points to the provided value and uses the provided
+         * ReferenceCount object to manage the value.
+         */
+        Pointer(T* value, ReferenceCount* referenceCount)
+            : value(nullptr), referenceCount(nullptr)
         {
-            this->incrementRefCount();
+            this->set(value, referenceCount);
         }
 
         template <typename U>
@@ -57,12 +67,7 @@ namespace e1
          */
         void set(T* value)
         {
-            if (this->value != value)
-            {
-                this->clear();
-
-                this->value = value;
-            }
+            this->set(value, nullptr);
         }
         /**
          * Set this Pointer to point to the provided value.
@@ -79,15 +84,9 @@ namespace e1
          */
         void set(const Pointer<T>& toCopy)
         {
-            if (this->value != toCopy.value)
+            if (this->getValuePointer() != toCopy.getValuePointer())
             {
-                this->clear();
-
-                this->refCount = toCopy.refCount;
-                this->incrementRefCount();
-
-                this->value = toCopy.value;
-                this->releaseAction = toCopy.releaseAction;
+                this->set(toCopy.getValuePointer(), toCopy.getReferenceCount());
             }
         }
         /**
@@ -123,17 +122,7 @@ namespace e1
          */
         void clear()
         {
-            if (this->refCount != nullptr)
-            {
-                *this->refCount -= 1;
-                if (*this->refCount == 0)
-                {
-                    this->releaseAction();
-                }
-                this->refCount = nullptr;
-            }
-            this->value = nullptr;
-            this->releaseAction = []{};
+            this->set(nullptr, nullptr);
         }
 
         /**
@@ -141,7 +130,7 @@ namespace e1
          */
         bool hasValue() const
         {
-            return this->value != nullptr;
+            return this->getValuePointer() != nullptr;
         }
 
         /**
@@ -150,7 +139,7 @@ namespace e1
         template <typename U = T, typename std::enable_if<!std::is_void<U>::value, int>::type = 0>
         U& getValue() const
         {
-            return *this->value;
+            return *this->getValuePointer();
         }
 
         /**
@@ -159,7 +148,7 @@ namespace e1
         template <typename U = T, typename std::enable_if<!std::is_void<U>::value, int>::type = 0>
         U& operator*() const
         {
-            return *this->value;
+            return this->getValue();
         }
 
         /**
@@ -175,7 +164,7 @@ namespace e1
          */
         T* operator->() const
         {
-            return this->value;
+            return this->getValuePointer();
         }
 
         /**
@@ -184,8 +173,8 @@ namespace e1
         template <typename U>
         const Pointer<U> as() const
         {
-            U* uValue = reinterpret_cast<U*>(this->value);
-            return Pointer<U>(uValue, this->refCount, this->releaseAction);
+            U* uValue = reinterpret_cast<U*>(this->getValuePointer());
+            return Pointer<U>(uValue, this->getReferenceCount());
         }
 
         /**
@@ -194,7 +183,7 @@ namespace e1
          */
         bool equals(const void* right) const
         {
-            return this->value == right;
+            return this->getValuePointer() == right;
         }
 
         /**
@@ -213,7 +202,7 @@ namespace e1
         template <typename U>
         bool equals(const Pointer<U>& right) const
         {
-            return this->value == right.getValuePointer();
+            return this->getValuePointer() == right.getValuePointer();
         }
 
         /**
@@ -227,20 +216,35 @@ namespace e1
         }
 
     private:
-        /**
-         * Increment this Pointer's refCount value.
-         */
-        void incrementRefCount()
+        void set(T* value, ReferenceCount* referenceCount)
         {
-            if (this->refCount != nullptr)
+            if (this->value != value)
             {
-                *this->refCount += 1;
+                if (this->referenceCount != referenceCount)
+                {
+                    if (this->referenceCount != nullptr)
+                    {
+                        this->referenceCount->decrement();
+                    }
+
+                    this->referenceCount = referenceCount;
+
+                    if (this->referenceCount != nullptr)
+                    {
+                        this->referenceCount->increment();
+                    }
+                }
+                this->value = value;
             }
         }
 
+        ReferenceCount* getReferenceCount() const
+        {
+            return this->referenceCount;
+        }
+
         mutable T* value;
-        int* refCount;
-        Action<> releaseAction;
+        ReferenceCount* referenceCount;
     };
 
     /**
@@ -249,5 +253,3 @@ namespace e1
     template <typename T>
     using P = Pointer<T>;
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef E1_BYTECOUNTINGALLOCATOR_H
-#define E1_BYTECOUNTINGALLOCATOR_H
+#pragma once
 
 #include "AllocatorDecorator.h"
 
@@ -20,5 +19,3 @@ namespace e1
         int allocatedByteCount;
     };
 }
-
-#endif

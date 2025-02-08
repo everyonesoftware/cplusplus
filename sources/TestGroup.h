@@ -1,5 +1,4 @@
-#ifndef E1_TESTGROUP_H
-#define E1_TESTGROUP_H
+#pragma once
 
 #include "Pointer.h"
 
@@ -34,5 +33,3 @@ namespace e1
         const P<TestGroup> parent;
     };
 }
-
-#endif

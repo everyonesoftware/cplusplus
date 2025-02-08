@@ -1,5 +1,4 @@
-#ifndef E1_TEST_H
-#define E1_TEST_H
+#pragma once
 
 #include "Action.h"
 #include "TestAssertionFailure.h"
@@ -33,10 +32,22 @@ namespace e1
         }
 
         /**
+         * Assert that the provided values are not equal.
+         * @param left The left value in the comparison.
+         * @param right The right value in the comparison.
+         */
+        template <typename T, typename U>
+        void assertNotEqual(T left, U right)
+        {
+            if (left == right)
+            {
+                this->fail("Expected the values to not be equal, but they were.");
+            }
+        }
+
+        /**
          * Assert that the provided Action throws an exception.
          */
         void assertThrows(const Action<>& action);
     };
 }
-
-#endif

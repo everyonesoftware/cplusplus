@@ -1,9 +1,9 @@
-#ifndef E1_ALLOCATOR_H
-#define E1_ALLOCATOR_H
+#pragma once
 
 #include "HasThisPointer.h"
 #include "NotCopyable.h"
 #include "Pointer.h"
+#include "Array.h"
 
 namespace e1
 {
@@ -28,6 +28,12 @@ namespace e1
         Pointer<T> create(TArgs... args);
 
         /**
+         * Create a new Array of type T.
+         */
+        template <typename T>
+        Pointer<Array<T>> createArray(int count);
+
+        /**
          * Allocate a block of memory that contains the provided amount of bytes.
          * @param byteCount The number of bytes to allocate and return.
          */
@@ -43,29 +49,31 @@ namespace e1
 
 #include "HasAllocator.h"
 #include "HasThisPointer.h"
-#include "RefCountedValue.h"
+#include "ReferenceCount.h"
 
 namespace e1
 {
     template <typename T, typename ...TArgs>
     Pointer<T> Allocator::create(TArgs... args)
     {
-        const int refCountedValueByteCount = sizeof(RefCountedValue<T>);
-        void* bytes = this->allocate(refCountedValueByteCount);
+        const int valueByteCount = sizeof(T);
+        const int referenceCountByteCount = sizeof(ReferenceCount);
+        const int byteCount = valueByteCount + referenceCountByteCount;
+        void* bytes = this->allocate(byteCount);
 
-        RefCountedValue<T>* refCountedValue = new(bytes) RefCountedValue<T>(args...);
-        
-        T* valuePointer = refCountedValue->getValuePointer();
-        
-        int* refCountPointer = refCountedValue->getRefCountPointer();
+        T* valuePointer = reinterpret_cast<T*>(bytes);
+        new(valuePointer) T(args...);
 
-        const Action<> releaseAction = [=, this]
+        ReferenceCount* referenceCountPointer = reinterpret_cast<ReferenceCount*>(valuePointer + 1);
+        const Action<> cleanupAction = [=, this]
         {
-            refCountedValue->~RefCountedValue();
-            this->free(refCountedValue, refCountedValueByteCount);
+            referenceCountPointer->~ReferenceCount();
+            valuePointer->~T();
+            this->free(bytes, byteCount);
         };
+        new(referenceCountPointer) ReferenceCount(cleanupAction);
 
-        Pointer<T> result(valuePointer, refCountPointer, releaseAction);
+        Pointer<T> result(valuePointer, referenceCountPointer);
 
         // if constexpr (std::is_base_of_v<HasAllocator,T>)
         // {
@@ -79,6 +87,44 @@ namespace e1
 
         return result;
     }
-}
 
-#endif
+    template <typename T>
+    Pointer<Array<T>> Allocator::createArray(int count)
+    {
+        const int valuesByteCount = sizeof(T) * count;
+        const int arrayByteCount = sizeof(Array<T>);
+        const int referenceCountByteCount = sizeof(ReferenceCount);
+        const int byteCount = referenceCountByteCount + valuesByteCount + arrayByteCount;
+        void* bytes = this->allocate(byteCount);
+
+        T* valuesPointer = reinterpret_cast<T*>(bytes);
+        new(valuesPointer) T[count];
+
+        Array<T>* arrayPointer = reinterpret_cast<Array<T>*>(valuesPointer + count);
+        new(arrayPointer) Array<T>(count, valuesPointer);
+
+        ReferenceCount* referenceCountPointer = reinterpret_cast<ReferenceCount*>(arrayPointer + 1);
+        const Action<> cleanupAction = [=, this]
+        {
+            referenceCountPointer->~ReferenceCount();
+            arrayPointer->~Array();
+            for (int i = 0; i < count; i++)
+            {
+                valuesPointer[i].~T();
+            }
+            this->free(bytes, byteCount);
+        };
+        new(referenceCountPointer) ReferenceCount(cleanupAction);
+
+        Pointer<Array<T>> result(arrayPointer, referenceCountPointer);
+
+        // if constexpr (std::is_base_of_v<HasAllocator,T>)
+        // {
+        //     result.template as<HasAllocator>()->setAllocator(this->getThisPointer());
+        // }
+
+        result->setThisPointer(result);
+
+        return result;
+    }
+}

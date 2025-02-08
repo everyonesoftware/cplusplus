@@ -1,9 +1,6 @@
-#ifndef E1_HASALLOCATOR_H
-#define E1_HASALLOCATOR_H
+#pragma once
 
 namespace e1
 {
     
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef E1_CURRENTPROCESS_H
-#define E1_CURRENTPROCESS_H
+#pragma once
 
 #include "Action.h"
 #include "Allocator.h"
@@ -81,5 +80,3 @@ namespace e1
         P<CharacterWriteStream> outputWriteStream;
     };
 }
-
-#endif

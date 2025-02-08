@@ -1,5 +1,4 @@
-#ifndef E1_ACTION_H
-#define E1_ACTION_H
+#pragma once
 
 #include <functional>
 
@@ -11,5 +10,3 @@ namespace e1
     template<typename ...TArgs>
     using Action = std::function<void(TArgs...)>;
 }
-
-#endif

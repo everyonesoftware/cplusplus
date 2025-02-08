@@ -1,5 +1,4 @@
-#ifndef E1_FUNCTION_H
-#define E1_FUNCTION_H
+#pragma once
 
 #include <functional>
 
@@ -14,5 +13,3 @@ namespace e1
         std::function<TReturn(TArgs...)>
     >::type;
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef E1_STDCOUTCHARACTERWRITESTREAM_H
-#define E1_STDCOUTCHARACTERWRITESTREAM_H
+#pragma once
 
 #include "CharacterWriteStream.h"
 
@@ -19,5 +18,3 @@ namespace e1
         virtual void writeInt(int toWrite);
     };
 }
-
-#endif

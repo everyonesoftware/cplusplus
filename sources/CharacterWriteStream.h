@@ -1,5 +1,4 @@
-#ifndef E1_CHARACTERWRITESTREAM_H
-#define E1_CHARACTERWRITESTREAM_H
+#pragma once
 
 namespace e1
 {
@@ -33,5 +32,3 @@ namespace e1
         virtual void writeInt(int toWrite) = 0;
     };
 }
-
-#endif

@@ -44,6 +44,35 @@ namespace e1
                 assertEqualTest("with true and 1", true, 1);
             });
 
+            runner->testMethod("assertNotEqual()", [&]
+            {
+                auto assertNotEqualErrorTest = [&](const char* testName, auto left, auto right)
+                {
+                    runner->test(testName, [&](Test test)
+                    {
+                        test.assertThrows([&]
+                        {
+                            test.assertNotEqual(left, right);
+                        });
+                    });
+                };
+                assertNotEqualErrorTest("with 22 and 22", 22, 22);
+                assertNotEqualErrorTest("with 0 and 0", 0, 0);
+                assertNotEqualErrorTest("with false and false", false, false);
+                assertNotEqualErrorTest("with true and true", true, true);
+
+                auto assertNotEqualTest = [&](const char* testName, auto left, auto right)
+                {
+                    runner->test(testName, [&](Test test)
+                    {
+                        test.assertNotEqual(left, right);
+                    });
+                };
+                assertNotEqualTest("with 22 and 24", 22, 24);
+                assertNotEqualTest("with 2 and true", 2, true);
+                assertNotEqualTest("with true and 2", true, 2);
+            });
+
             runner->testMethod("assertThrows()", [&]
             {
                 runner->test("with nothing thrown", [](Test test)
