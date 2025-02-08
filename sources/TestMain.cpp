@@ -3,6 +3,7 @@
 #include "TestRunner.h"
 
 #include "ByteCountingAllocatorTests.h"
+#include "HeapAllocatorTests.h"
 #include "PointerTests.h"
 #include "TestAssertionFailureTests.h"
 #include "TestRunnerTests.h"
@@ -17,6 +18,7 @@ int main(int argc, char** argv)
         TestRunner runner(process->getOutputWriteStream());
 
         ByteCountingAllocatorTests(&runner);
+        HeapAllocatorTests(&runner);
         PointerTests(&runner);
         TestAssertionFailureTests(&runner);
         TestRunnerTests(&runner);

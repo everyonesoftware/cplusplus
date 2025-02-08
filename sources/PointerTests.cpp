@@ -41,12 +41,12 @@ namespace e1
                 runner->test("with local variables", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
 
-                    Pointer<bool> p(&value, &refCount, [&]{ cleanupCount++; });
+                    Pointer<bool> p(&value, &refCount);
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                     test.assertEqual(false, *p);
                 });
@@ -67,22 +67,22 @@ namespace e1
                 runner->test("with non-null", [](Test test)
                 {
                     TestAssertionFailure value("fake error");
-                    int refCount = 0;
                     int cleanupCount = 0;
-                    Pointer<TestAssertionFailure> p1(&value, &refCount, [&]{ cleanupCount++; });
+                    ReferenceCount refCount([&]{ cleanupCount++; });
+                    Pointer<TestAssertionFailure> p1(&value, &refCount);
 
                     Pointer<std::exception> p2(p1);
 
                     test.assertEqual(&value, p2.getValuePointer());
                     test.assertEqual(true, p2.hasValue());
-                    test.assertEqual(2, refCount);
+                    test.assertEqual(2, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
 
                     p2.set(nullptr);
 
                     test.assertEqual(nullptr, p2.getValuePointer());
                     test.assertEqual(false, p2.hasValue());
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
             });
@@ -102,16 +102,16 @@ namespace e1
                 runner->test("with non-null", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
-                    Pointer<bool> p1(&value, &refCount, [&]{ cleanupCount++; });
+                    ReferenceCount refCount([&]{ cleanupCount++; });
+                    Pointer<bool> p1(&value, &refCount);
 
                     Pointer<bool> p2(p1);
 
                     test.assertEqual(&value, p2.getValuePointer());
                     test.assertEqual(true, p2.hasValue());
                     test.assertEqual(false, value);
-                    test.assertEqual(2, refCount);
+                    test.assertEqual(2, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
 
                     p2.set(nullptr);
@@ -119,7 +119,7 @@ namespace e1
                     test.assertEqual(nullptr, p2.getValuePointer());
                     test.assertEqual(false, p2.hasValue());
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
             });
@@ -129,39 +129,39 @@ namespace e1
                 runner->test("with one pointer", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
 
                     {
-                        Pointer<bool> p(&value, &refCount, [&]{ cleanupCount++; });
+                        Pointer<bool> p(&value, &refCount);
                         test.assertEqual(false, value);
-                        test.assertEqual(1, refCount);
+                        test.assertEqual(1, refCount.getCount());
                         test.assertEqual(0, cleanupCount);
                         test.assertEqual(false, *p);
                     }
 
                     test.assertEqual(false, value);
-                    test.assertEqual(0, refCount);
+                    test.assertEqual(0, refCount.getCount());
                     test.assertEqual(1, cleanupCount);
                 });
 
                 runner->test("with two pointers", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
 
-                    Pointer<bool> p1(&value, &refCount, [&]{ cleanupCount++; });
+                    Pointer<bool> p1(&value, &refCount);
                     {
-                        Pointer<bool> p2(&value, &refCount, [&]{ cleanupCount++; });
+                        Pointer<bool> p2(&value, &refCount);
                         test.assertEqual(false, value);
-                        test.assertEqual(2, refCount);
+                        test.assertEqual(2, refCount.getCount());
                         test.assertEqual(0, cleanupCount);
                         test.assertEqual(false, *p2);
                     }
 
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
             });
@@ -181,39 +181,39 @@ namespace e1
                 runner->test("with non-null but same as current value", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
 
-                    Pointer<bool> p(&value, &refCount, [&]{ cleanupCount++; });
+                    Pointer<bool> p(&value, &refCount);
                     test.assertEqual(&value, p.getValuePointer());
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
 
                     p.set(&value);
                     test.assertEqual(&value, p.getValuePointer());
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
 
                 runner->test("with non-null but different from current value", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
                     bool value2 = true;
 
-                    Pointer<bool> p(&value, &refCount, [&]{ cleanupCount++; });
+                    Pointer<bool> p(&value, &refCount);
                     test.assertEqual(&value, p.getValuePointer());
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
 
                     p.set(&value2);
                     test.assertEqual(&value2, p.getValuePointer());
                     test.assertEqual(true, *p);
-                    test.assertEqual(0, refCount);
+                    test.assertEqual(0, refCount.getCount());
                     test.assertEqual(1, cleanupCount);
                 });
             });
@@ -233,39 +233,39 @@ namespace e1
                 runner->test("with non-null but same as current value", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
 
-                    Pointer<bool> p(&value, &refCount, [&]{ cleanupCount++; });
+                    Pointer<bool> p(&value, &refCount);
                     test.assertEqual(&value, p.getValuePointer());
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
 
                     p = &value;
                     test.assertEqual(&value, p.getValuePointer());
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
 
                 runner->test("with non-null but different from current value", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
                     bool value2 = true;
 
-                    Pointer<bool> p(&value, &refCount, [&]{ cleanupCount++; });
+                    Pointer<bool> p(&value, &refCount);
                     test.assertEqual(&value, p.getValuePointer());
                     test.assertEqual(false, value);
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
 
                     p = &value2;
                     test.assertEqual(&value2, p.getValuePointer());
                     test.assertEqual(true, *p);
-                    test.assertEqual(0, refCount);
+                    test.assertEqual(0, refCount.getCount());
                     test.assertEqual(1, cleanupCount);
                 });
             });
@@ -286,33 +286,33 @@ namespace e1
                 runner->test("with non-null but same as current value", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
-                    Pointer<bool> p1(&value, &refCount, [&]{ cleanupCount++; });
+                    ReferenceCount refCount([&]{ cleanupCount++; });
+                    Pointer<bool> p1(&value, &refCount);
                     Pointer<bool> p2(p1);
 
                     p1.set(p2);
                     test.assertEqual(&value, p1.getValuePointer());
-                    test.assertEqual(2, refCount);
+                    test.assertEqual(2, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
 
                 runner->test("with non-null but different from current value", [](Test test)
                 {
                     bool value1 = false;
-                    int refCount1 = 0;
                     int cleanupCount1 = 0;
-                    Pointer<bool> p1(&value1, &refCount1, [&]{ cleanupCount1++; });
+                    ReferenceCount refCount1([&]{ cleanupCount1++; });
+                    Pointer<bool> p1(&value1, &refCount1);
 
                     bool value2 = true;
-                    int refCount2 = 0;
                     int cleanupCount2 = 0;
-                    Pointer<bool> p2(&value2, &refCount2, [&]{ cleanupCount2++; });
+                    ReferenceCount refCount2([&]{ cleanupCount2++; });
+                    Pointer<bool> p2(&value2, &refCount2);
 
                     p1.set(p2);
                     test.assertEqual(&value2, p1.getValuePointer());
-                    test.assertEqual(0, refCount1);
-                    test.assertEqual(2, refCount2);
+                    test.assertEqual(0, refCount1.getCount());
+                    test.assertEqual(2, refCount2.getCount());
                     test.assertEqual(1, cleanupCount1);
                     test.assertEqual(0, cleanupCount2);
                 });
@@ -334,33 +334,33 @@ namespace e1
                 runner->test("with non-null but same as current value", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
-                    Pointer<bool> p1(&value, &refCount, [&]{ cleanupCount++; });
+                    ReferenceCount refCount([&]{ cleanupCount++; });
+                    Pointer<bool> p1(&value, &refCount);
                     Pointer<bool> p2(p1);
 
                     p1 = p2;
                     test.assertEqual(&value, p1.getValuePointer());
-                    test.assertEqual(2, refCount);
+                    test.assertEqual(2, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
 
                 runner->test("with non-null but different from current value", [](Test test)
                 {
                     bool value1 = false;
-                    int refCount1 = 0;
                     int cleanupCount1 = 0;
-                    Pointer<bool> p1(&value1, &refCount1, [&]{ cleanupCount1++; });
+                    ReferenceCount refCount1([&]{ cleanupCount1++; });
+                    Pointer<bool> p1(&value1, &refCount1);
 
                     bool value2 = true;
-                    int refCount2 = 0;
                     int cleanupCount2 = 0;
-                    Pointer<bool> p2(&value2, &refCount2, [&]{ cleanupCount2++; });
+                    ReferenceCount refCount2([&]{ cleanupCount2++; });
+                    Pointer<bool> p2(&value2, &refCount2);
 
                     p1 = p2;
                     test.assertEqual(&value2, p1.getValuePointer());
-                    test.assertEqual(0, refCount1);
-                    test.assertEqual(2, refCount2);
+                    test.assertEqual(0, refCount1.getCount());
+                    test.assertEqual(2, refCount2.getCount());
                     test.assertEqual(1, cleanupCount1);
                     test.assertEqual(0, cleanupCount2);
                 });
@@ -382,35 +382,35 @@ namespace e1
                 runner->test("with non-null but same as current value", [](Test test)
                 {
                     TestAssertionFailure value("fake error");
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
 
-                    Pointer<std::exception> p(&value, &refCount, [&]{ cleanupCount++; });
+                    Pointer<std::exception> p(&value, &refCount);
                     test.assertEqual(&value, p.getValuePointer());
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
 
                     p.set(&value);
                     test.assertEqual(&value, p.getValuePointer());
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
 
                 runner->test("with non-null but different from current value", [](Test test)
                 {
                     TestAssertionFailure value1("fake error 1");
-                    int refCount = 0;
                     int cleanupCount = 0;
+                    ReferenceCount refCount([&]{ cleanupCount++; });
                     TestAssertionFailure value2("fake error 2");
 
-                    Pointer<std::exception> p(&value1, &refCount, [&]{ cleanupCount++; });
+                    Pointer<std::exception> p(&value1, &refCount);
                     test.assertEqual(&value1, p.getValuePointer());
-                    test.assertEqual(1, refCount);
+                    test.assertEqual(1, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
 
                     p.set(&value2);
                     test.assertEqual(&value2, p.getValuePointer());
-                    test.assertEqual(0, refCount);
+                    test.assertEqual(0, refCount.getCount());
                     test.assertEqual(1, cleanupCount);
                 });
             });
@@ -431,33 +431,33 @@ namespace e1
                 runner->test("with non-null but same as current value", [](Test test)
                 {
                     TestAssertionFailure value("fake error");
-                    int refCount = 0;
                     int cleanupCount = 0;
-                    Pointer<TestAssertionFailure> p1(&value, &refCount, [&]{ cleanupCount++; });
+                    ReferenceCount refCount([&]{ cleanupCount++; });
+                    Pointer<TestAssertionFailure> p1(&value, &refCount);
                     Pointer<std::exception> p2(p1);
 
                     p2.set(p1);
                     test.assertEqual(&value, p2.getValuePointer());
-                    test.assertEqual(2, refCount);
+                    test.assertEqual(2, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
 
                 runner->test("with non-null but different from current value", [](Test test)
                 {
                     TestAssertionFailure value1("fake error 1");
-                    int refCount1 = 0;
                     int cleanupCount1 = 0;
-                    Pointer<TestAssertionFailure> p1(&value1, &refCount1, [&]{ cleanupCount1++; });
+                    ReferenceCount refCount1([&]{ cleanupCount1++; });
+                    Pointer<TestAssertionFailure> p1(&value1, &refCount1);
 
                     TestAssertionFailure value2("fake error 2");
-                    int refCount2 = 0;
                     int cleanupCount2 = 0;
-                    Pointer<std::exception> p2(&value2, &refCount2, [&]{ cleanupCount2++; });
+                    ReferenceCount refCount2([&]{ cleanupCount2++; });
+                    Pointer<std::exception> p2(&value2, &refCount2);
 
                     p2.set(p1);
                     test.assertEqual(&value1, p2.getValuePointer());
-                    test.assertEqual(2, refCount1);
-                    test.assertEqual(0, refCount2);
+                    test.assertEqual(2, refCount1.getCount());
+                    test.assertEqual(0, refCount2.getCount());
                     test.assertEqual(0, cleanupCount1);
                     test.assertEqual(1, cleanupCount2);
                 });
@@ -479,33 +479,33 @@ namespace e1
                 runner->test("with non-null but same as current value", [](Test test)
                 {
                     TestAssertionFailure value("fake error");
-                    int refCount = 0;
                     int cleanupCount = 0;
-                    Pointer<TestAssertionFailure> p1(&value, &refCount, [&]{ cleanupCount++; });
+                    ReferenceCount refCount([&]{ cleanupCount++; });
+                    Pointer<TestAssertionFailure> p1(&value, &refCount);
                     Pointer<std::exception> p2(p1);
 
                     p2 = p1;
                     test.assertEqual(&value, p2.getValuePointer());
-                    test.assertEqual(2, refCount);
+                    test.assertEqual(2, refCount.getCount());
                     test.assertEqual(0, cleanupCount);
                 });
 
                 runner->test("with non-null but different from current value", [](Test test)
                 {
                     TestAssertionFailure value1("fake error 1");
-                    int refCount1 = 0;
                     int cleanupCount1 = 0;
-                    Pointer<TestAssertionFailure> p1(&value1, &refCount1, [&]{ cleanupCount1++; });
+                    ReferenceCount refCount1([&]{ cleanupCount1++; });
+                    Pointer<TestAssertionFailure> p1(&value1, &refCount1);
 
                     TestAssertionFailure value2("fake error 2");
-                    int refCount2 = 0;
                     int cleanupCount2 = 0;
-                    Pointer<std::exception> p2(&value2, &refCount2, [&]{ cleanupCount2++; });
+                    ReferenceCount refCount2([&]{ cleanupCount2++; });
+                    Pointer<std::exception> p2(&value2, &refCount2);
 
                     p2 = p1;
                     test.assertEqual(&value1, p2.getValuePointer());
-                    test.assertEqual(2, refCount1);
-                    test.assertEqual(0, refCount2);
+                    test.assertEqual(2, refCount1.getCount());
+                    test.assertEqual(0, refCount2.getCount());
                     test.assertEqual(0, cleanupCount1);
                     test.assertEqual(1, cleanupCount2);
                 });
@@ -526,14 +526,14 @@ namespace e1
                 runner->test("with value", [](Test test)
                 {
                     bool value = false;
-                    int refCount = 0;
                     int cleanupCount = 0;
-                    Pointer<bool> p(&value, &refCount, [&]{ cleanupCount++; });
+                    ReferenceCount referenceCount([&]{ cleanupCount++; });
+                    Pointer<bool> p(&value, &referenceCount);
 
                     for (int i = 0; i < 3; i++)
                     {
                         p.clear();
-                        test.assertEqual(0, refCount);
+                        test.assertEqual(0, referenceCount.getCount());
                         test.assertEqual(1, cleanupCount);
                         test.assertEqual(nullptr, p.getValuePointer());
                         test.assertEqual(false, p.hasValue());

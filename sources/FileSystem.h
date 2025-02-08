@@ -1,5 +1,4 @@
-#ifndef E1_FILESYSTEM_H
-#define E1_FILESYSTEM_H
+#pragma once
 
 namespace e1
 {
@@ -9,5 +8,3 @@ namespace e1
         
     };
 }
-
-#endif

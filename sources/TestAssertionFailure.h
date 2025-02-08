@@ -1,5 +1,4 @@
-#ifndef E1_TESTASSERTIONFAILURE_H
-#define E1_TESTASSERTIONFAILURE_H
+#pragma once
 
 #include <stdexcept>
 
@@ -29,5 +28,3 @@ namespace e1
         const char* message;
     };
 }
-
-#endif

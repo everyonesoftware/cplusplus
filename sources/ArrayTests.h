@@ -6,7 +6,7 @@
 namespace e1
 {
     /**
-     * Tests for the Pointer type.
+     * Tests for the Array type.
      */
-    void PointerTests(const P<TestRunner>& runner);
+    void ArrayTests(const P<TestRunner>& runner);
 }

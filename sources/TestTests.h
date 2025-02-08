@@ -1,5 +1,4 @@
-#ifndef E1_TESTTESTS_H
-#define E1_TESTTESTS_H
+#pragma once
 
 #include "Pointer.h"
 #include "TestRunner.h"
@@ -11,5 +10,3 @@ namespace e1
      */
     void TestTests(const P<TestRunner>& runner);
 }
-
-#endif

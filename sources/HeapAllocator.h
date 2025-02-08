@@ -1,5 +1,4 @@
-#ifndef E1_HEAPALLOCATOR_H
-#define E1_HEAPALLOCATOR_H
+#pragma once
 
 #include "Allocator.h"
 
@@ -25,5 +24,3 @@ namespace e1
         virtual void free(void* bytes, int byteCount);
     };
 }
-
-#endif

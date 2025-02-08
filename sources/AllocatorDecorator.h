@@ -1,5 +1,4 @@
-#ifndef E1_ALLOCATORDECORATOR_H
-#define E1_ALLOCATORDECORATOR_H
+#pragma once
 
 #include "Allocator.h"
 #include "Pointer.h"
@@ -31,5 +30,3 @@ namespace e1
         P<Allocator> inner;
     };
 }
-
-#endif
