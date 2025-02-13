@@ -14,10 +14,11 @@ namespace e1
             {
                 HeapAllocator allocator;
 
-                void* bytes = allocator.allocate(50);
+                const int byteCount = 50;
+                void* bytes = allocator.allocate(byteCount);
                 test.assertNotEqual(nullptr, bytes);
 
-                allocator.free(bytes, 50);
+                allocator.free(bytes, byteCount);
             });
 
             runner->testMethod("create()", [&]
@@ -29,27 +30,30 @@ namespace e1
                     P<bool> pValue = allocator.create<bool>(true);
                     test.assertNotEqual(nullptr, pValue);
                     test.assertEqual(true, pValue.getValue());
+
+                    pValue.clear();
+                    test.assertEqual(nullptr, pValue);
                 });
 
                 runner->test("with P<int>", [](Test test)
                 {
                     int value = 5;
                     int cleanupCount = 0;
-                    ReferenceCount referenceCount([&]{ cleanupCount++; });
-                    P<int> pValue(&value, &referenceCount);
+                    Counter counter;
+                    P<int> pValue(&value, &counter, [&]{ cleanupCount++; });
 
                     HeapAllocator allocator;
 
                     P<P<int>> ppValue = allocator.create<P<int>>(pValue);
-                    test.assertEqual(2, referenceCount.getCount());
+                    test.assertEqual(2, counter.get());
                     test.assertEqual(0, cleanupCount);
 
                     ppValue.clear();
-                    test.assertEqual(1, referenceCount.getCount());
+                    test.assertEqual(1, counter.get());
                     test.assertEqual(0, cleanupCount);
 
                     pValue.clear();
-                    test.assertEqual(0, referenceCount.getCount());
+                    test.assertEqual(0, counter.get());
                     test.assertEqual(1, cleanupCount);
                 });
             });
@@ -63,14 +67,17 @@ namespace e1
                     P<Array<bool>> pArray = allocator.createArray<bool>(5);
                     test.assertNotEqual(nullptr, pArray);
                     test.assertEqual(5, pArray->getCount());
+
+                    pArray.clear();
+                    test.assertEqual(nullptr, pArray);
                 });
 
                 runner->test("with P<int>", [](Test test)
                 {
                     int value = 5;
+                    Counter counter;
                     int cleanupCount = 0;
-                    ReferenceCount referenceCount([&]{ cleanupCount++; });
-                    P<int> pValue(&value, &referenceCount);
+                    P<int> pValue(&value, &counter, [&]{ cleanupCount++; });
 
                     HeapAllocator allocator;
 
@@ -81,15 +88,15 @@ namespace e1
                     {
                         pArray->get(i).set(pValue);
                     }
-                    test.assertEqual(4, referenceCount.getCount());
+                    test.assertEqual(4, counter.get());
                     test.assertEqual(0, cleanupCount);
 
                     pArray.clear();
-                    test.assertEqual(1, referenceCount.getCount());
+                    test.assertEqual(1, counter.get());
                     test.assertEqual(0, cleanupCount);
 
                     pValue.clear();
-                    test.assertEqual(0, referenceCount.getCount());
+                    test.assertEqual(0, counter.get());
                     test.assertEqual(1, cleanupCount);
                 });
             });

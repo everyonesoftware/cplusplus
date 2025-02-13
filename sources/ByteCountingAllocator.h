@@ -8,7 +8,7 @@ namespace e1
     {
     public:
         ByteCountingAllocator(const P<Allocator>& inner);
-        virtual ~ByteCountingAllocator();
+        virtual ~ByteCountingAllocator() = default;
 
         virtual void* allocate(int byteCount);
         virtual void free(void* bytes, int byteCount);

@@ -7,13 +7,9 @@ namespace e1
     {
     }
 
-    ByteCountingAllocator::~ByteCountingAllocator()
-    {
-    }
-
     void* ByteCountingAllocator::allocate(int byteCount)
     {
-        void* result = AllocatorDecorator::allocate(byteCount);
+        void* result = this->AllocatorDecorator::allocate(byteCount);
         this->allocatedByteCount += byteCount;
 
         return result;
@@ -21,7 +17,7 @@ namespace e1
 
     void ByteCountingAllocator::free(void* bytes, int byteCount)
     {
-        AllocatorDecorator::free(bytes, byteCount);
+        this->AllocatorDecorator::free(bytes, byteCount);
 
         this->allocatedByteCount -= byteCount;
     }
