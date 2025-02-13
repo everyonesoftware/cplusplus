@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReferenceCount.h"
+#include "Counter.h"
 #include "Action.h"
 
 #include <type_traits>
@@ -18,7 +18,7 @@ namespace e1
          * Create a new empty Pointer object that points to null.
          */
         Pointer()
-            : Pointer(nullptr, nullptr)
+            : Pointer(nullptr, nullptr, []{})
         {
         }
 
@@ -27,18 +27,18 @@ namespace e1
          * of cleanup when the Pointer is destroyed.
          */
         Pointer(T* value)
-            : Pointer(value, nullptr)
+            : Pointer(value, nullptr, []{})
         {
         }
 
         /**
          * Create a new Pointer object that points to the provided value and uses the provided
-         * ReferenceCount object to manage the value.
+         * Counter object to manage the value.
          */
-        Pointer(T* value, ReferenceCount* referenceCount)
-            : value(nullptr), referenceCount(nullptr)
+        Pointer(T* value, Counter* counter, Action<> cleanupAction)
+            : value(nullptr), counter(nullptr), cleanupAction([]{})
         {
-            this->set(value, referenceCount);
+            this->set(value, counter, cleanupAction);
         }
 
         template <typename U>
@@ -67,7 +67,7 @@ namespace e1
          */
         void set(T* value)
         {
-            this->set(value, nullptr);
+            this->set(value, nullptr, []{});
         }
         /**
          * Set this Pointer to point to the provided value.
@@ -84,10 +84,7 @@ namespace e1
          */
         void set(const Pointer<T>& toCopy)
         {
-            if (this->getValuePointer() != toCopy.getValuePointer())
-            {
-                this->set(toCopy.getValuePointer(), toCopy.getReferenceCount());
-            }
+            this->set(toCopy.getValuePointer(), toCopy.getCounter(), toCopy.getCleanupAction());
         }
         /**
          * Set this Pointer to point to the same value as the provided Pointer.
@@ -122,7 +119,7 @@ namespace e1
          */
         void clear()
         {
-            this->set(nullptr, nullptr);
+            this->set(nullptr, nullptr, []{});
         }
 
         /**
@@ -173,8 +170,8 @@ namespace e1
         template <typename U>
         const Pointer<U> as() const
         {
-            U* uValue = reinterpret_cast<U*>(this->getValuePointer());
-            return Pointer<U>(uValue, this->getReferenceCount());
+            U* uValue = static_cast<U*>(this->getValuePointer());
+            return Pointer<U>(uValue, this->getCounter(), this->getCleanupAction());
         }
 
         /**
@@ -216,35 +213,39 @@ namespace e1
         }
 
     private:
-        void set(T* value, ReferenceCount* referenceCount)
+        void set(T* value, Counter* counter, Action<> cleanupAction)
         {
-            if (this->value != value)
+            if (this->counter != counter)
             {
-                if (this->referenceCount != referenceCount)
+                if (this->counter != nullptr && 0 == this->counter->decrementAndGet())
                 {
-                    if (this->referenceCount != nullptr)
-                    {
-                        this->referenceCount->decrement();
-                    }
-
-                    this->referenceCount = referenceCount;
-
-                    if (this->referenceCount != nullptr)
-                    {
-                        this->referenceCount->increment();
-                    }
+                    this->cleanupAction();
                 }
-                this->value = value;
+
+                this->counter = counter;
+
+                if (this->counter != nullptr)
+                {
+                    this->counter->increment();
+                }
             }
+            this->value = value;
+            this->cleanupAction = cleanupAction;
         }
 
-        ReferenceCount* getReferenceCount() const
+        Counter* getCounter() const
         {
-            return this->referenceCount;
+            return this->counter;
+        }
+
+        const Action<>& getCleanupAction() const
+        {
+            return this->cleanupAction;
         }
 
         mutable T* value;
-        ReferenceCount* referenceCount;
+        Counter* counter;
+        Action<> cleanupAction;
     };
 
     /**

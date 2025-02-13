@@ -9,11 +9,11 @@ namespace e1
     {
         runner->testType("ByteCountingAllocator", [&]
         {
-            runner->test("getAllocatedByteCount", [](Test test)
+            runner->test("getAllocatedByteCount", [&](Test test)
             {
-                HeapAllocator ha;
-                ByteCountingAllocator bca(&ha);
-                const int allocationByteCount = sizeof(int) + sizeof(ReferenceCount);
+                const P<Allocator> allocator = runner->getAllocator();
+                ByteCountingAllocator bca(allocator);
+                const int allocationByteCount = sizeof(int) + sizeof(Counter);
 
                 test.assertEqual(0, bca.getAllocatedByteCount());
 

@@ -2,6 +2,7 @@
 
 #include "Action.h"
 #include "CharacterWriteStream.h"
+#include "HasAllocator.h"
 #include "Pointer.h"
 #include "Test.h"
 #include "TestGroup.h"
@@ -11,7 +12,7 @@ namespace e1
     /**
      * A type that can be used to run tests.
      */
-    class TestRunner
+    class TestRunner : public HasAllocator
     {
     public:
         /**

@@ -7,17 +7,6 @@ namespace e1
     class HasThisPointer
     {
     public:
-        virtual ~HasThisPointer() = default;
-
-        /**
-         * Get a Pointer to this object.
-         */
-        template <typename T>
-        const P<T> getThisPointer() const requires std::is_base_of_v<HasThisPointer,T>
-        {
-            return this->thisPointer.as<T>();
-        }
-
         /**
          * Set the Pointer for this object.
          */
@@ -32,6 +21,15 @@ namespace e1
         HasThisPointer(T* thisPointer) requires std::is_base_of_v<HasThisPointer,T>
             : thisPointer(thisPointer)
         {
+        }
+
+        /**
+         * Get a Pointer to this object.
+         */
+        template <typename T>
+        const P<T> getThisPointer() const requires std::is_base_of_v<HasThisPointer,T>
+        {
+            return this->thisPointer.as<T>();
         }
 
     private:
