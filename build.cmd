@@ -2,7 +2,7 @@ call clean.cmd
 
 mkdir outputs
 
-set COMPILE=g++ -std=c++20 -x c++ -g -c --coverage
+set COMPILE=g++ -std=c++20 -x c++ -g -c --coverage -pedantic-errors
 set LINK=g++ --coverage
 
 del outputs\*.gcno

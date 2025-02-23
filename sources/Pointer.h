@@ -170,7 +170,39 @@ namespace e1
         template <typename U>
         const Pointer<U> as() const
         {
+            return this->staticAs<U>();
+        }
+
+        /**
+         * Get a new pointer with the provided type U from this Pointer.
+         */
+        template <typename U>
+        const Pointer<U> staticAs() const
+        {
             U* uValue = static_cast<U*>(this->getValuePointer());
+            return Pointer<U>(uValue, this->getCounter(), this->getCleanupAction());
+        }
+
+        /**
+         * Get a new pointer with the provided type U from this Pointer.
+         */
+        template <typename U>
+        const Pointer<U> dynamicAs() const
+        {
+            U* uValue = dynamic_cast<U*>(this->getValuePointer());
+            return Pointer<U>(uValue, this->getCounter(), this->getCleanupAction());
+        }
+
+        /**
+         * Get a new pointer with the provided type U from this Pointer. This will use a
+         * reinterpret_cast() to force the current pointer to a different type. This will likely
+         * cause problems if you're trying to downcast or upcast a value of one type to a derived or
+         * base type.
+         */
+        template <typename U>
+        const Pointer<U> reinterpretAs() const
+        {
+            U* uValue = reinterpret_cast<U*>(this->getValuePointer());
             return Pointer<U>(uValue, this->getCounter(), this->getCleanupAction());
         }
 
