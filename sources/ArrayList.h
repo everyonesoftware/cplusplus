@@ -5,6 +5,7 @@
 #include "NotCopyable.h"
 #include "Array.h"
 #include "Allocator.h"
+#include "Byte.h"
 
 namespace e1
 {
@@ -20,7 +21,7 @@ namespace e1
          * before any values can be added to this ArrayList.
          */
         ArrayList()
-            : HasThisPointer(this), HasAllocator(), count(0), array()
+            : HasThisPointer(this), HasAllocator(), count(0), byteArray()
         {
         }
 
@@ -51,28 +52,43 @@ namespace e1
         const P<ArrayList<T>> insert(int index, const T& value)
         {
             const int currentCount = this->getCount();
-            if (!this->array.hasValue() ||
-                this->array->getCount() == currentCount)
+            const int currentCountBytes = currentCount * sizeof(T);
+            if (!this->byteArray.hasValue() ||
+                this->byteArray->getCount() == currentCountBytes)
             {
-                const P<Array<T>> newArray = this->getAllocator()->template createArray<T>((2 * currentCount) + 1);
+                const P<Array<T>> oldValueArray = this->getValueArray();
+
+                const int newCountBytes = sizeof(T) * ((2 * currentCount) + 1);
+                this->byteArray = this->getAllocator()->template createArray<byte>(newCountBytes);
+                T* valueArrayPtr = this->getValueArrayPointer();
+
                 for (int i = 0; i < index; i++)
                 {
-                    newArray->set(i, this->get(i));
+                    T& valueRef = oldValueArray->get(i);
+                    new(valueArrayPtr + i) T(valueRef);
+                    valueRef.~T();
                 }
+
+                new(valueArrayPtr + index) T(value);
+
                 for (int i = index; i < currentCount; i++)
                 {
-                    newArray->set(i + 1, this->get(i));
+                    T& valueRef = oldValueArray->get(i);
+                    new(valueArrayPtr + i + 1) T(valueRef);
+                    valueRef.~T();
                 }
-                this->array.set(newArray);
             }
             else
             {
-                for (int i = currentCount; index < i; i--)
+                T* valueArrayPtr = this->getValueArrayPointer();
+                for (int i = currentCount - 1; index <= i; i--)
                 {
-                    this->set(i, this->get(i - 1));
+                    T* valuePtr = valueArrayPtr + i;
+                    new(valuePtr + 1) T(*valuePtr);
+                    valuePtr->~T();
                 }
+                new (valueArrayPtr + index) T(value);
             }
-            this->set(index, value);
             this->count++;
 
             return this->getThisPointer();
@@ -94,7 +110,9 @@ namespace e1
          */
         const P<ArrayList<T>> set(int index, const T& value)
         {
-            this->array->set(index, value);
+            T* valuePtr = this->getValueArrayPointer() + index;
+            valuePtr->~T();
+            new (valuePtr) T(value);
 
             return this->getThisPointer();
         }
@@ -105,7 +123,7 @@ namespace e1
          */
         T& get(int index) const
         {
-            return this->array->get(index);
+            return this->getValueArray()->get(index);
         }
 
         /**
@@ -118,10 +136,14 @@ namespace e1
             const T result = this->get(index);
 
             const int currentCount = this->getCount();
+            T* valueArrayPtr = this->getValueArrayPointer();
             for (int i = index; i < currentCount - 1; i++)
             {
-                this->set(i, this->get(i + 1));
+                T* valuePtr = valueArrayPtr + i;
+                valuePtr->~T();
+                new (valuePtr) T(*(valuePtr + 1));
             }
+            (valueArrayPtr + currentCount - 1)->~T();
             this->count--;
 
             return result;
@@ -133,7 +155,17 @@ namespace e1
         }
 
     private:
+        const P<Array<T>> getValueArray() const
+        {
+            return this->byteArray.reinterpretAs<Array<T>>();
+        }
+
+        T* getValueArrayPointer() const
+        {
+            return this->getValueArray()->getValuesPointer();
+        }
+
         int count;
-        P<Array<T>> array;
+        P<Array<byte>> byteArray;
     };
 }
