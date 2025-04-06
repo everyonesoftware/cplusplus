@@ -13,9 +13,9 @@ namespace e1
             {
                 const P<Allocator> allocator = runner->getAllocator();
                 ByteCountingAllocator bca(allocator);
-                const int allocationByteCount = sizeof(int) + sizeof(Counter);
+                const std::size_t allocationByteCount = sizeof(int) + sizeof(Counter);
 
-                test.assertEqual(0, bca.getAllocatedByteCount());
+                test.assertEqual(static_cast<std::size_t>(0), bca.getAllocatedByteCount());
 
                 P<int> p1 = bca.create<int>(1);
                 test.assertEqual(allocationByteCount, bca.getAllocatedByteCount());
@@ -27,7 +27,7 @@ namespace e1
                 test.assertEqual(allocationByteCount, bca.getAllocatedByteCount());
 
                 p2.clear();
-                test.assertEqual(0, bca.getAllocatedByteCount());
+                test.assertEqual(static_cast<std::size_t>(0), bca.getAllocatedByteCount());
             });
         });
     }

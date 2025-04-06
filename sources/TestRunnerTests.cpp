@@ -235,7 +235,10 @@ namespace e1
                     StdCoutCharacterWriteStream writeStream;
                     TestRunner fakeRunner(&writeStream);
 
-                    fakeRunner.test("fake test name", [](Test fakeTest){});
+                    fakeRunner.test("fake test name", [](Test fakeTest)
+                    {
+                        fakeTest.assertEqual(3, 3);
+                    });
 
                     test.assertEqual(1, fakeRunner.getPassedTestCount());
                     test.assertEqual(0, fakeRunner.getFailedTestCount());
@@ -249,6 +252,7 @@ namespace e1
 
                     fakeRunner.test("fake test name", [](Test fakeTest)
                     {
+                        fakeTest.assertEqual(3, 3);
                         throw TestAssertionFailure("fake error message");
                     });
 
@@ -264,6 +268,7 @@ namespace e1
 
                     fakeRunner.test("fake test name", [](Test fakeTest)
                     {
+                        fakeTest.assertEqual(3, 3);
                         throw 13;
                     });
 

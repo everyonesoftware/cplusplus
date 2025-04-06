@@ -14,7 +14,7 @@
 
 using namespace e1;
 
-int main(int argc, char** argv)
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
     return CurrentProcess::run([](const P<CurrentProcess>& process)
     {

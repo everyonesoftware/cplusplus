@@ -38,7 +38,7 @@ namespace e1
         /**
          * Get the number of values in this ArrayList.
          */
-        int getCount() const
+        std::size_t getCount() const
         {
             return this->count;
         }
@@ -49,20 +49,20 @@ namespace e1
          * @param index The index to insert the value at.
          * @param value The value to insert.
          */
-        const P<ArrayList<T>> insert(int index, const T& value)
+        const P<ArrayList<T>> insert(std::size_t index, const T& value)
         {
-            const int currentCount = this->getCount();
-            const int currentCountBytes = currentCount * sizeof(T);
+            const std::size_t currentCount = this->getCount();
+            const std::size_t currentCountBytes = currentCount * sizeof(T);
             if (!this->byteArray.hasValue() ||
                 this->byteArray->getCount() == currentCountBytes)
             {
                 const P<Array<T>> oldValueArray = this->getValueArray();
 
-                const int newCountBytes = sizeof(T) * ((2 * currentCount) + 1);
+                const std::size_t newCountBytes = sizeof(T) * ((2 * currentCount) + 1);
                 this->byteArray = this->getAllocator()->template createArray<byte>(newCountBytes);
                 T* valueArrayPtr = this->getValueArrayPointer();
 
-                for (int i = 0; i < index; i++)
+                for (std::size_t i = 0; i < index; i++)
                 {
                     T& valueRef = oldValueArray->get(i);
                     new(valueArrayPtr + i) T(valueRef);
@@ -71,7 +71,7 @@ namespace e1
 
                 new(valueArrayPtr + index) T(value);
 
-                for (int i = index; i < currentCount; i++)
+                for (std::size_t i = index; i < currentCount; i++)
                 {
                     T& valueRef = oldValueArray->get(i);
                     new(valueArrayPtr + i + 1) T(valueRef);
@@ -81,11 +81,16 @@ namespace e1
             else
             {
                 T* valueArrayPtr = this->getValueArrayPointer();
-                for (int i = currentCount - 1; index <= i; i--)
+                for (std::size_t i = currentCount - 1; index <= i; i--)
                 {
                     T* valuePtr = valueArrayPtr + i;
                     new(valuePtr + 1) T(*valuePtr);
                     valuePtr->~T();
+
+                    if (index == i)
+                    {
+                        break;
+                    }
                 }
                 new (valueArrayPtr + index) T(value);
             }
@@ -108,7 +113,7 @@ namespace e1
          * @param index The index to set.
          * @param value The value to set.
          */
-        const P<ArrayList<T>> set(int index, const T& value)
+        const P<ArrayList<T>> set(std::size_t index, const T& value)
         {
             T* valuePtr = this->getValueArrayPointer() + index;
             valuePtr->~T();
@@ -121,7 +126,7 @@ namespace e1
          * Get the value at the provided index.
          * @param index The index of the value to return.
          */
-        T& get(int index) const
+        T& get(std::size_t index) const
         {
             return this->getValueArray()->get(index);
         }
@@ -131,13 +136,13 @@ namespace e1
          * will be shifted to the left one index position.
          * @param index The index at which to remove a value.
          */
-        const T removeAt(int index)
+        const T removeAt(std::size_t index)
         {
             const T result = this->get(index);
 
-            const int currentCount = this->getCount();
+            const std::size_t currentCount = this->getCount();
             T* valueArrayPtr = this->getValueArrayPointer();
-            for (int i = index; i < currentCount - 1; i++)
+            for (std::size_t i = index; i < currentCount - 1; i++)
             {
                 T* valuePtr = valueArrayPtr + i;
                 valuePtr->~T();
@@ -165,7 +170,7 @@ namespace e1
             return this->getValueArray()->getValuesPointer();
         }
 
-        int count;
+        std::size_t count;
         P<Array<byte>> byteArray;
     };
 }

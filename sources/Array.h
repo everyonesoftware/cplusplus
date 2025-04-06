@@ -4,6 +4,7 @@
 #include "HasAllocator.h"
 #include "HasThisPointer.h"
 
+#include <cstddef>
 #include <type_traits>
 
 namespace e1
@@ -15,22 +16,16 @@ namespace e1
     class Array : public NotCopyable, public HasThisPointer, public HasAllocator
     {
     public:
-        Array(int count, T* values)
+        Array(std::size_t count, T* values)
             : HasThisPointer(this), HasAllocator(), count(count), values(values)
         {
         }
         virtual ~Array() = default;
 
         /**
-         * Set this Array to point to the same value as the provided Array.
-         * @param toCopy The Array to copy.
-         */
-        void operator=(const Array<T>& toCopy) = delete;
-
-        /**
          * Get the number of elements in this Array.
          */
-        int getCount() const
+        std::size_t getCount() const
         {
             return this->count;
         }
@@ -38,7 +33,7 @@ namespace e1
         /**
          * Set the value at the provided index to the provided value.
          */
-        void set(int index, const T& value)
+        void set(std::size_t index, const T& value)
         {
             this->getValuesPointer()[index] = value;
         }
@@ -46,7 +41,7 @@ namespace e1
         /**
          * Get the value at the provided index in this Array.
          */
-        T& get(int index) const
+        T& get(std::size_t index) const
         {
             return this->getValuesPointer()[index];
         }
@@ -54,7 +49,7 @@ namespace e1
         /**
          * Get the value at the provided index in this Array.
          */
-        T& operator[](int index) const
+        T& operator[](std::size_t index) const
         {
             return this->get(index);
         }
@@ -68,7 +63,7 @@ namespace e1
         }
 
     private:
-        int count;
+        std::size_t count;
         mutable T* values;
     };
 }

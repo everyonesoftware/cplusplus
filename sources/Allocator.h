@@ -25,13 +25,13 @@ namespace e1
          * Allocate a block of memory that contains the provided amount of bytes.
          * @param byteCount The number of bytes to allocate and return.
          */
-        virtual void* allocate(int byteCount) = 0;
+        virtual void* allocate(std::size_t byteCount) = 0;
         /**
          * Free a block of memory that was previously allocated.
          * @param bytes The block of memory to free.
          * @param byteCount The number of bytes contained by the memory block.
          */
-        virtual void free(void* bytes, int byteCount) = 0;
+        virtual void free(void* bytes, std::size_t byteCount) = 0;
 
         /**
          * Create a new object of type T. Any arguments provided will be passed to T's constructor.
@@ -43,7 +43,7 @@ namespace e1
          * Create a new Array of type T.
          */
         template <typename T>
-        Pointer<Array<T>> createArray(int count);
+        Pointer<Array<T>> createArray(std::size_t count);
 
     protected:
         /**
@@ -56,14 +56,16 @@ namespace e1
 #include "HasAllocator.h"
 #include "Counter.h"
 
+#include <cstddef>
+
 namespace e1
 {
     template <typename T, typename ...TArgs>
     Pointer<T> Allocator::create(TArgs... args)
     {
-        const int valueByteCount = sizeof(T);
-        const int counterByteCount = sizeof(Counter);
-        const int byteCount = valueByteCount + counterByteCount;
+        const std::size_t valueByteCount = sizeof(T);
+        const std::size_t counterByteCount = sizeof(Counter);
+        const std::size_t byteCount = valueByteCount + counterByteCount;
         void* bytes = this->allocate(byteCount);
 
         T* valuePointer = reinterpret_cast<T*>(bytes);
@@ -101,12 +103,12 @@ namespace e1
     }
 
     template <typename T>
-    Pointer<Array<T>> Allocator::createArray(int count)
+    Pointer<Array<T>> Allocator::createArray(std::size_t count)
     {
-        const int valuesByteCount = sizeof(T) * count;
-        const int arrayByteCount = sizeof(Array<T>);
-        const int counterByteCount = sizeof(Counter);
-        const int byteCount = valuesByteCount + arrayByteCount + counterByteCount;
+        const std::size_t valuesByteCount = sizeof(T) * count;
+        const std::size_t arrayByteCount = sizeof(Array<T>);
+        const std::size_t counterByteCount = sizeof(Counter);
+        const std::size_t byteCount = valuesByteCount + arrayByteCount + counterByteCount;
         void* bytes = this->allocate(byteCount);
 
         T* valuesPointer = reinterpret_cast<T*>(bytes);
@@ -120,7 +122,7 @@ namespace e1
 
         const Action<> cleanupAction = [=, this]
         {
-            for (int i = 0; i < count; i++)
+            for (std::size_t i = 0; i < count; i++)
             {
                 valuesPointer[i].~T();
             }
