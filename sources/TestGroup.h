@@ -1,5 +1,6 @@
 #pragma once
 
+#include "NotCopyable.h"
 #include "Pointer.h"
 
 namespace e1
@@ -7,7 +8,7 @@ namespace e1
     /**
      * A group of tests.
      */
-    class TestGroup
+    class TestGroup : public NotCopyable
     {
     public:
         /**

@@ -15,7 +15,10 @@ namespace e1
          * @param message An explanation of why the assertion failed.
          */
         TestAssertionFailure(const char* message);
+        TestAssertionFailure(const TestAssertionFailure& toCopy) = default;
         virtual ~TestAssertionFailure();
+
+        TestAssertionFailure& operator=(const TestAssertionFailure& toCopy) = default;
 
         /**
          * Get the message that explains why the assertion failed.

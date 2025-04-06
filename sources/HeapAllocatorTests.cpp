@@ -66,7 +66,7 @@ namespace e1
 
                     P<Array<bool>> pArray = allocator.createArray<bool>(5);
                     test.assertNotEqual(nullptr, pArray);
-                    test.assertEqual(5, pArray->getCount());
+                    test.assertEqual(static_cast<std::size_t>(5), pArray->getCount());
 
                     pArray.clear();
                     test.assertEqual(nullptr, pArray);
@@ -83,8 +83,8 @@ namespace e1
 
                     P<Array<P<int>>> pArray = allocator.createArray<P<int>>(3);
                     test.assertNotEqual(nullptr, pArray);
-                    test.assertEqual(3, pArray->getCount());
-                    for (int i = 0; i < pArray->getCount(); i++)
+                    test.assertEqual(static_cast<std::size_t>(3), pArray->getCount());
+                    for (std::size_t i = 0; i < pArray->getCount(); i++)
                     {
                         pArray->get(i).set(pValue);
                     }

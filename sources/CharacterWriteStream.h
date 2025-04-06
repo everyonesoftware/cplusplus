@@ -8,6 +8,8 @@ namespace e1
     class CharacterWriteStream
     {
     public:
+        virtual ~CharacterWriteStream() = default;
+
         /**
          * Write the provided null-terminated string to the stream.
          * @param toWrite The null-terminated string to write.

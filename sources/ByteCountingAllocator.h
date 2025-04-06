@@ -10,12 +10,12 @@ namespace e1
         ByteCountingAllocator(const P<Allocator>& inner);
         virtual ~ByteCountingAllocator() = default;
 
-        virtual void* allocate(int byteCount);
-        virtual void free(void* bytes, int byteCount);
+        virtual void* allocate(std::size_t byteCount);
+        virtual void free(void* bytes, std::size_t byteCount);
 
-        int getAllocatedByteCount() const;
+        std::size_t getAllocatedByteCount() const;
 
     private:
-        int allocatedByteCount;
+        std::size_t allocatedByteCount;
     };
 }

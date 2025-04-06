@@ -10,7 +10,7 @@ namespace e1
         {
             runner->test("sizeof", [](Test test)
             {
-                test.assertEqual(1, sizeof(byte));
+                test.assertEqual(static_cast<std::size_t>(1), sizeof(byte));
             });
         });
     }
