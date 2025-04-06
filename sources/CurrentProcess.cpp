@@ -4,9 +4,11 @@
 
 namespace e1
 {
-    int CurrentProcess::run(const Action<P<CurrentProcess>> action)
+    int CurrentProcess::run(int argc, const char** argv, const Action<P<CurrentProcess>> action)
     {
         CurrentProcess process;
+
+        process.setCommandLineArguments(argc, argv);
 
         HeapAllocator allocator;
         process.setAllocator(&allocator);
@@ -21,11 +23,31 @@ namespace e1
 
     CurrentProcess::CurrentProcess()
         : HasThisPointer(this),
-          allocator(),
+          argc(),
+          argv(),
           exitCode(),
+          allocator(),
           fileSystem(),
           outputWriteStream()
     {
+    }
+
+    const P<CurrentProcess> CurrentProcess::setCommandLineArguments(int argc, const char** argv)
+    {
+        this->argc = argc;
+        this->argv = argv;
+
+        return this->getThisPointer();
+    }
+
+    int CurrentProcess::getCommandLineArgumentCount() const
+    {
+        return this->argc;
+    }
+
+    const char** CurrentProcess::getCommandLineArguments() const
+    {
+        return this->argv;
     }
 
     const P<CurrentProcess> CurrentProcess::setAllocator(const P<Allocator>& allocator)
@@ -50,7 +72,7 @@ namespace e1
         return this->exitCode;
     }
 
-    FileSystem& CurrentProcess::getFileSystem()
+    const P<FileSystem>& CurrentProcess::getFileSystem() const
     {
         return this->fileSystem;
     }

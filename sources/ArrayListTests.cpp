@@ -9,10 +9,17 @@ namespace e1
     {
     public:
         TypeCounter()
+            : value(0)
         {
             TypeCounter::DefaultConstructorCalls++;
         }
+        TypeCounter(int value)
+            : value(value)
+        {
+            TypeCounter::ValueConstructorCalls++;
+        }
         TypeCounter([[maybe_unused]] const TypeCounter& toCopy)
+            : value(toCopy.value)
         {
             TypeCounter::CopyConstructorCalls++;
         }
@@ -26,13 +33,17 @@ namespace e1
         static void reset()
         {
             TypeCounter::DefaultConstructorCalls = 0;
+            TypeCounter::ValueConstructorCalls = 0;
             TypeCounter::CopyConstructorCalls = 0;
             TypeCounter::DestructorCalls = 0;
         }
 
         static inline int DefaultConstructorCalls = 0;
+        static inline int ValueConstructorCalls = 0;
         static inline int CopyConstructorCalls = 0;
         static inline int DestructorCalls = 0;
+
+        const int value;
     };
 
     void ArrayListTests(const P<TestRunner>& runner)
@@ -128,14 +139,14 @@ namespace e1
 
                     const P<ArrayList<int>> result = list->insert(0, 2);
 
-                    // test.assertEqual(result, list);
-                    // test.assertEqual(static_cast<std::size_t>(3), list->getCount());
-                    // value = list->get(0);
-                    // test.assertEqual(2, value);
-                    // value = list->get(1);
-                    // test.assertEqual(0, value);
-                    // value = list->get(2);
-                    // test.assertEqual(1, value);
+                    test.assertEqual(result, list);
+                    test.assertEqual(static_cast<std::size_t>(3), list->getCount());
+                    value = list->get(0);
+                    test.assertEqual(2, value);
+                    value = list->get(1);
+                    test.assertEqual(0, value);
+                    value = list->get(2);
+                    test.assertEqual(1, value);
                 });
 
                 runner->test("when ArrayList has two values and index is 1", [](Test test)
@@ -362,6 +373,24 @@ namespace e1
                     test.assertEqual(static_cast<std::size_t>(2), list->getCount());
                     test.assertEqual(0, list->get(0));
                     test.assertEqual(2, list->get(1));
+                });
+
+                runner->test("with three values, index 1, and TypeCounters", [](Test test)
+                {
+                    TypeCounter::reset();
+
+                    HeapAllocator allocator;
+                    const P<ArrayList<TypeCounter>> list = allocator.create<ArrayList<TypeCounter>>()
+                        ->add(TypeCounter(1))
+                        ->add(TypeCounter(2))
+                        ->add(TypeCounter(3));
+
+                    const TypeCounter result = list->removeAt(1);
+                    test.assertEqual(2, result.value);
+
+                    test.assertEqual(static_cast<std::size_t>(2), list->getCount());
+                    test.assertEqual(1, list->get(0).value);
+                    test.assertEqual(3, list->get(1).value);
                 });
 
                 runner->test("with three values and index 2", [](Test test)
