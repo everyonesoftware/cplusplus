@@ -28,6 +28,7 @@ del outputs\*.gcno
 %COMPILE% -o outputs\ByteTests.o sources\ByteTests.cpp || exit /b
 %COMPILE% -o outputs\ByteCountingAllocatorTests.o sources\ByteCountingAllocatorTests.cpp || exit /b
 %COMPILE% -o outputs\CounterTests.o sources\CounterTests.cpp || exit /b
+%COMPILE% -o outputs\CurrentProcessTests.o sources\CurrentProcessTests.cpp || exit /b
 %COMPILE% -o outputs\HeapAllocatorTests.o sources\HeapAllocatorTests.cpp || exit /b
 %COMPILE% -o outputs\PointerTests.o sources\PointerTests.cpp || exit /b
 %COMPILE% -o outputs\TestAssertionFailureTests.o sources\TestAssertionFailureTests.cpp || exit /b
@@ -35,4 +36,4 @@ del outputs\*.gcno
 %COMPILE% -o outputs\TestRunnerTests.o sources\TestRunnerTests.cpp || exit /b
 %COMPILE% -o outputs\TestTests.o sources\TestTests.cpp || exit /b
 
-%LINK% -o outputs\TestMain.exe outputs\AllocatorDecorator.o outputs\ByteCountingAllocator.o outputs\ByteCountingAllocatorTests.o outputs\CurrentProcess.o outputs\HeapAllocator.o outputs\StdCoutCharacterWriteStream.o outputs\Test.o outputs\TestAssertionFailure.o outputs\TestAssertionFailureTests.o outputs\TestGroup.o outputs\TestRunner.o outputs\TestMain.o outputs\TestTests.o outputs\TestRunnerTests.o outputs\PointerTests.o outputs\HeapAllocatorTests.o outputs\ByteTests.o outputs\ArrayListTests.o outputs\HasAllocator.o outputs\Allocator.o outputs\CounterTests.o outputs\Counter.o || exit /b
+%LINK% -o outputs\TestMain.exe outputs\AllocatorDecorator.o outputs\ByteCountingAllocator.o outputs\ByteCountingAllocatorTests.o outputs\CurrentProcess.o outputs\HeapAllocator.o outputs\StdCoutCharacterWriteStream.o outputs\Test.o outputs\TestAssertionFailure.o outputs\TestAssertionFailureTests.o outputs\TestGroup.o outputs\TestRunner.o outputs\TestMain.o outputs\TestTests.o outputs\TestRunnerTests.o outputs\PointerTests.o outputs\HeapAllocatorTests.o outputs\ByteTests.o outputs\ArrayListTests.o outputs\HasAllocator.o outputs\Allocator.o outputs\CounterTests.o outputs\Counter.o outputs\CurrentProcessTests.o || exit /b

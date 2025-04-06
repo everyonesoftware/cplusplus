@@ -6,6 +6,7 @@
 #include "ByteTests.h"
 #include "ByteCountingAllocatorTests.h"
 #include "CounterTests.h"
+#include "CurrentProcessTests.h"
 #include "HeapAllocatorTests.h"
 #include "PointerTests.h"
 #include "TestAssertionFailureTests.h"
@@ -14,9 +15,9 @@
 
 using namespace e1;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
+int main(int argc, const char** argv)
 {
-    return CurrentProcess::run([](const P<CurrentProcess>& process)
+    return CurrentProcess::run(argc, argv, [](const P<CurrentProcess>& process)
     {
         const P<Allocator> allocator = process->getAllocator();
         const P<CharacterWriteStream> outputWriteStream = process->getOutputWriteStream();
@@ -26,6 +27,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         ByteTests(runner);
         ByteCountingAllocatorTests(runner);
         CounterTests(runner);
+        CurrentProcessTests(runner);
         HeapAllocatorTests(runner);
         PointerTests(runner);
         TestAssertionFailureTests(runner);

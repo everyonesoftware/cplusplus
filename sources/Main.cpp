@@ -2,9 +2,9 @@
 
 using namespace e1;
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
+int main(int argc, const char** argv)
 {
-    return CurrentProcess::run([](const P<CurrentProcess>& process)
+    return CurrentProcess::run(argc, argv, [](const P<CurrentProcess>& process)
     {
         process->getOutputWriteStream()->writeLine("Hello world!");
 
