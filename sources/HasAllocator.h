@@ -10,31 +10,21 @@ namespace e1
     class Allocator;
 
     /**
-     * A mix-in type that specifies that the derived type contains an Allocator. This is
-     * particularly useful for data structures that need to dynamically allocate memory.
+     * An interface that specifies that an implementing type can set and get an Allocator.
      */
     class HasAllocator
     {
     public:
+        virtual ~HasAllocator() = default;
+
         /**
-         * Set the Allocator for this object.
+         * Set the Allocator for this object. This should only be called once.
          */
-        void setAllocator(const P<Allocator>& allocator);
+        virtual void setAllocator(const P<Allocator>& allocator) = 0;
 
         /**
          * Get this object's Allocator.
          */
-        const P<Allocator>& getAllocator() const;
-
-    protected:
-        HasAllocator() = default;
-
-        HasAllocator(const P<Allocator>& allocator)
-            : allocator(allocator)
-        {
-        }
-
-    private:
-        Pointer<Allocator> allocator;
+        virtual const P<Allocator>& getAllocator() const = 0;
     };
 }

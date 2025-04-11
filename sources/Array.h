@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NotCopyable.h"
-#include "HasAllocator.h"
+#include "HasAllocatorBase.h"
 #include "HasThisPointer.h"
 
 #include <cstddef>
@@ -13,11 +13,11 @@ namespace e1
      * An array of values.
      */
     template <typename T, typename std::enable_if<!std::is_void<T>::value, int>::type = 0>
-    class Array : public NotCopyable, public HasThisPointer, public HasAllocator
+    class Array : public NotCopyable, public HasThisPointer, public HasAllocatorBase
     {
     public:
         Array(std::size_t count, T* values)
-            : HasThisPointer(this), HasAllocator(), count(count), values(values)
+            : HasThisPointer(this), HasAllocatorBase(), count(count), values(values)
         {
         }
         virtual ~Array() = default;
@@ -64,6 +64,6 @@ namespace e1
 
     private:
         std::size_t count;
-        mutable T* values;
+        T* const values;
     };
 }

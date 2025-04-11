@@ -27,6 +27,6 @@ namespace e1
         AllocatorDecorator(const P<Allocator>& inner);
 
     private:
-        P<Allocator> inner;
+        const P<Allocator> inner;
     };
 }
