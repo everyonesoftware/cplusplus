@@ -1,7 +1,7 @@
 #pragma once
 
 #include "HasThisPointer.h"
-#include "HasAllocator.h"
+#include "HasAllocatorBase.h"
 #include "NotCopyable.h"
 #include "Array.h"
 #include "Allocator.h"
@@ -13,7 +13,7 @@ namespace e1
      * A dynamic list data structure that stores its values in an array.
      */
     template <typename T>
-    class ArrayList : public HasThisPointer, public HasAllocator, public NotCopyable
+    class ArrayList : public HasThisPointer, public HasAllocatorBase, public NotCopyable
     {
     public:
         /**
@@ -21,7 +21,7 @@ namespace e1
          * before any values can be added to this ArrayList.
          */
         ArrayList()
-            : HasThisPointer(this), HasAllocator(), count(0), byteArray()
+            : HasThisPointer(this), HasAllocatorBase(), count(0), byteArray()
         {
         }
 
